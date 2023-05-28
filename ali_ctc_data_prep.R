@@ -4,75 +4,81 @@
 #############################################
 
 # Import library
-library("readxl") #reading data from excel
-library(readr) #reading data from csv
-library(xlsx) # writing to an excel file
-#reading the excel files and csv files.
-df_outliers = read_excel("/home/siyabonga/Documents/OneDrive_1_13-05-2023/possible outliers.xlsx",
-                         sheet = 'Outliers')
+library("readxl")# reading data from excel
+library(readr) # reading data from csv 
+library(writexl) # writing to an excel file
+library(dplyr) # Data manipulation
 
-#Due to memory issues in R raw data was converted to csv and loaded using "readr"
-DIR_DATA = '/home/siyabonga/Documents/OneDrive_1_13-05-2023'  # main path for raw data storage 
+
+#########################################
+# 1. Load Data to R working environment
+#########################################
+#reading the excel files and csv files.
+#Due to memory issues in R, meta data was converted to csv and loaded using "readr"
+DIR_DATA = '/home/siyabonga/Documents/OneDrive_1_13-05-2023/Data-Prep-in-R'  # main path for meta data storage 
 FILENAME_DATA = 'Ali_CTC .csv'
 filepath_data <- file.path(DIR_DATA, FILENAME_DATA)
 df_ali_ctc <- readr::read_csv(file = filepath_data)
 
-#Viewing and checking the glimpse of the possible outliers data  
-head(df_outliers)
-tail(df_outliers)
-dim(df_outliers)
-colnames(df_outliers)
 
-#Viewing and checking the glimpse of the raw data                     
+###################################################
+#.2 Check the glimpse of data.
+###################################################
+#Viewing and checking the glimpse of the meta data                     
 summary(df_ali_ctc)
 head(df_ali_ctc)
 tail(df_ali_ctc)
 dim(df_ali_ctc)
 colnames(df_ali_ctc)
 
-#Removing NAs in outliers data
-df_outliers_no_na = na.omit(df_outliers)
+##########################################################################
+#.3 Zeros correspond to missing data. Check how many zeros in each column.
+##########################################################################
 
-# Deleting rows with outliers from the raw data
-df_outliers_no_na$`New name`
-#adding .txt in colnames of outliers to be compared to colnames of raw data
-for (ColNames in df_outliers_no_na$`New name`)
+colSums(df_ali_ctc==0)
+
+#########################################################################
+#.4 Check the percentage of Zeros entries in each columns.
+# This is checking the % of missing data in the observed data.
+##########################################################################
+
+colSums((df_ali_ctc==0)/136690)*100
+
+############################################################################
+#.5 If the Percentage of the missing data is >= 90. This is column is an
+# outlier. Here we get all the outlier columns and write them to excel file,
+############################################################################
+
+possibleOutliers =  data.frame() #creating an empty df.
+
+#checking if missing data is greater than 90%
+for (i in 1:381)
 {
-  df_outliers_no_na$`New name`= paste0(ColNames,".txt") #string comcatinating
+  if ((colSums(df_ali_ctc[,i]==0)/136690)*100 >= 90)
+  {
+    output = c(colnames(df_ali_ctc[,i], (colSums(df_ali_ctc[,i]==0)/136690)*100))
+    possibleOutliers = rbind(possibleOutliers, output)
+  }
 }
 
-df_outliers_no_na$`New name` #these colnames are the same as the one in raw data
+possibleOutliers #Checking the df for outliers.
 
-# Checking if the colnmanes exist in the raw data
-
-for (ColNames in df_outliers_no_na$`New name`)
-{
-  if (ColNames %in% colnames(df_ali_ctc))
-  {
-    print(ColNames)
-   # write.xlsx(ColNames, file = "/home/siyabonga/Documents/OneDrive_1_13-05-2023/existing_outliers.xlsx",
-               #sheetName = "exit_outlier", append = FALSE)
-  }
-  else
-  {
-    print("This does not exist")
-    #write.xlsx(ColNames, file = "/home/siyabonga/Documents/OneDrive_1_13-05-2023/existing_outliers.xlsx",
-               #sheetName = "no_outlier", append = FALSE)
-  }
-}
-
-#deleting the outliers columns in raw data
+#Writing the outliers into an excel file
+write_xlsx(possibleOutliers, 
+           "/home/siyabonga/Documents/OneDrive_1_13-05-2023/outliers_from_meta_data.xlsx")
 
 
-# Removing Zero entries
+###############################################################################
+#.6 Removing all the outlier columns in a dataset.
+##############################################################################
 
-# Extracting Plate Date from the file numbers
+#Code to remove columns will go here.
 
-# Extracting Cell type from file numbers
 
-# Questions Regarding data?
-# How do we determine possible outliers?
-# What do the values mean in the data?
-# 
+###############################################################################
+#.7 Replace all the zero entries in data sets with a random number between 
+#1-1000. Data Imputation.
+##############################################################################
 
+# Code for data Imputation will go here.
 
