@@ -30,7 +30,8 @@ head(df_ali_ctc)
 tail(df_ali_ctc)
 dim(df_ali_ctc)
 colnames(df_ali_ctc)
-
+ncol(df_ali_ctc)
+nrow(df_ali_ctc)
 ##########################################################################
 #.3 Zeros correspond to missing data. Check how many zeros in each column.
 ##########################################################################
@@ -52,7 +53,7 @@ colSums((df_ali_ctc==0)/136690)*100
 possibleOutliers =  data.frame() #creating an empty df.
 
 #checking if missing data is greater than 90%
-for (i in 1:381)
+for (i in 1:ncol(df_ali_ctc))
 {
   if ((colSums(df_ali_ctc[,i]==0)/136690)*100 >= 90)
   {
@@ -72,13 +73,40 @@ write_xlsx(possibleOutliers,
 #.6 Removing all the outlier columns in a dataset.
 ##############################################################################
 
-#Code to remove columns will go here.
+df_ali_ctc_copy = df_ali_ctc # Copying data so that we can manipulate the copy.
+df_without_out = data.frame() #empty data frame to store meta data without ouliers.
 
+# Removing Outlier columns
+for (i in 1:nrow(possibleOutliers))
+{
+  df_ali_ctc_copy = df_ali_ctc_copy %>% select(-possibleOutliers[i,])
+  df_without_out = df_ali_ctc_copy
+}
+
+# checkong the glimpse of the data without outlier columns
+dim(df_without_out)
+head(df_without_out)
+tail(df_without_out)
 
 ###############################################################################
 #.7 Replace all the zero entries in data sets with a random number between 
 #1-1000. Data Imputation.
 ##############################################################################
 
-# Code for data Imputation will go here.
+df_without_out_copy = df_without_out
+df_ali_ctc_imput = data_frame()
+
+for (i in 1:ncol(df_without_out))
+{
+  if (colSums(df_without_out_copy[,i]==0))
+  {
+    df_without_out_copy[,i] = sample(1:1000, 1) #this code needs to be update.
+                                                # the random number should be applied to each entry, not just 
+                                                #column.
+    df_ali_ctc_imput = df_without_out_copy
+  }
+}
+
+head(df_ali_ctc_imput)
+tail(df_ali_ctc_imput)
 
