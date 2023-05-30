@@ -50,7 +50,8 @@ colSums((df_ali_ctc==0)/136690)*100
 # outlier. Here we get all the outlier columns and write them to excel file,
 ############################################################################
 
-possibleOutliers =  data.frame() #creating an empty df.
+possibleOutliers =  data.frame() #creating an empty df to store columns that will be deleted..
+DF_to_excel = data.frame() #creating an empty df to store the data to be written to excel.
 
 #checking if missing data is greater than 90%
 for (i in 1:ncol(df_ali_ctc))
@@ -59,13 +60,23 @@ for (i in 1:ncol(df_ali_ctc))
   {
     output = c(colnames(df_ali_ctc[,i], (colSums(df_ali_ctc[,i]==0)/136690)*100))
     possibleOutliers = rbind(possibleOutliers, output)
+    C = colnames(df_ali_ctc[,i])
+    P = (colSums(df_ali_ctc[,i]==0)/136690)*100
+    temp = c(C,P)
+    DF_to_excel = rbind(DF_to_excel,temp)
+
   }
 }
 
 possibleOutliers #Checking the df for outliers.
 
+#Renaming the columns before writing data to an excel file.
+names(DF_to_excel)[1] <- "Outlier Columns-With lot of Zeros"
+names(DF_to_excel)[2] <- "% of missingness"
+head(DF_to_excel)
+
 #Writing the outliers into an excel file
-write_xlsx(possibleOutliers, 
+write_xlsx(DF_to_excel, 
            "/home/siyabonga/Documents/OneDrive_1_13-05-2023/outliers_from_meta_data.xlsx")
 
 
