@@ -32,6 +32,11 @@ colnames(df_ali_ctc)
 ncol(df_ali_ctc)
 nrow(df_ali_ctc)
 
+#Checking if all the data entries are numeric
+areAllEntriesNumeric <- df_ali_ctc %>%
+  summarize(across(everything(), is.numeric)) %>%
+  pull()
+
 ##########################################################################
 #.3 Zeros correspond to missing data. Check how many zeros in each column.
 ##########################################################################
@@ -110,19 +115,23 @@ dplyr::glimpse(df_ali_ctc_imput)
 
 # Checking the summary of the data after replacing all the zeros with random numbers
 # between 1 to 1000.
-summary <- df_ali_ctc_imput %>% summarize(
-    across(everything(), list(count = n(), mean = mean, median = median,        
-      min = min,max = max)))
+means <- df %>%
+  summarize(across(everything(), mean))
 
+mins <- df %>%
+  summarize(across(everything(), min))
+
+maxs <- df %>%
+  summarize(across(everything(), max))
+
+dplyr::glimpse(maxs)
+dplyr::glimpse(mins)
+dplyr::glimpse(means)
 ##############################################################
 #8.Plotting mz vs Cancer type
 #############################################################
 
 plot <- ggplot(df_ali_ctc_imput, aes(x=`CTC_HB_JPLT17-20_2017.07.31_2019.03.05_sample3.txt`, y =mz))+
   geom_line()+
-  labs(x="MZ", y="CTC_HB_JPL")
-
-mean(df_ali_ctc_imput$`CTC_HB_JPLT17-18M1_2017.12.06_2019.03.12_sample1.txt`)
-max(df_ali_ctc_imput$`CTC_HB_JPLT17-18M1_2017.12.06_2019.03.12_sample1.txt`)
-min(df_ali_ctc_imput$`CTC_HB_JPLT17-18M1_2017.12.06_2019.03.12_sample1.txt`)
+  labs(x=" CTC_HB_JPL", y="MZ")
 plot
